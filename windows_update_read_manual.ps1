@@ -3,6 +3,7 @@
   Dieses Skript ist zur schnellen, manuellen Auslesung eines Windows-Clients- / Servers gedacht. Dadurch ist es für Administratoren möglich
   eine schnelle Übersicht zu erhalten ohne sich auf das Ziel-System aufschalten zu müssen.
   Die Korrekte Implementierung der Berechtigungsstrukturen des ausführenden Benutzers wird vorausgesetzt. (Ausführen als Administrator nötig)
+  Zur Ausführung dieses Skript wird eine Windows-Anmeldung benötigt und sollte somit am besten von einem Windows-Betriebssystem ausgeführt werden.
 
 .INPUTS
   Benutzer wird aufgefordert ueber die Console den Computernamen und Domain einzugeben
