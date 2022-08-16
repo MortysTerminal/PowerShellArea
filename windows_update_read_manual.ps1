@@ -39,7 +39,7 @@ else {
 }
 
 ############################
-### USER INPUT
+### START
 ############################
 
 <# TODO: Moeglichkeit schaffen ueber IP zu gehen und Benutzerfreundlichkeit erhöhen (z.B. wenn keine Domain vorhanden ist.)#>
