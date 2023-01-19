@@ -74,7 +74,7 @@ function CheckYTDLPPath{
 Clear-Host
 
 # save yt-dlp path ; it's always a yt-dlp folder at the root folder
-$ytdlppath = ".\yt-dlp"
+$ytdlppath = $PSScriptRoot + "\yt-dlp"
 
 # use our function to check if the exe is available
 $CheckYTDLPPath = CheckYTDLPPath($ytdlppath)
