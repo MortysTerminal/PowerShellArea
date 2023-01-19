@@ -1,10 +1,22 @@
 ﻿# Formatierungsart des Scripts festlegen bevor fortgefahren wird
 $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' } 
 
+################################################
+###### HIER DOWNLOAD PFAD AENDERN !!
+################################################
+
 # Pfad zum Download (Beispiele: "C:\Users\USERNAME\Downloads" ; ".\downloaded" <- STANDARD:Verzeichnis in welchem das Skript ausgefuehrt wird)
 $downloadpath = ".\downloaded" 
 
-# DEBUG cd R:\MortysTerminal\PowerShellArea\TwitchAutomatisierung
+
+
+
+
+
+
+
+
+
 ################################################
 ###### FUNKTIONEN
 ################################################
@@ -69,9 +81,6 @@ Clear-Host
 # Usereingabe und Speichern der Eingabe in "url" 
 $url = Read-Host -Prompt 'Link zum Video eingeben'
 
-#DEBUG
-#$url = 'https://youtu.be/LHZbWFgnsjk'
-
 # Erstelle Titel-Namen des Videos und 
 $titlename = & $ytdlpfilepath -e $url.ToString()
 
@@ -94,6 +103,6 @@ $fulldownloadpath = Resolve-Path -Path ($downloadpath + "\" + $titlename)
 # Lade Video herunter
 & $ytdlpfilepath -P $fulldownloadpath $url.ToString() -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b" --windows-filenames --progress
 
-# Ende
-Write-Host -NoNewLine 'Skript beendet. Druecke beliebige Taste um das Skript zu schliessen...';
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+# Ende fuer DEBUG only
+#Write-Host -NoNewLine 'Skript beendet. Druecke beliebige Taste um das Skript zu schliessen...';
+#$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
