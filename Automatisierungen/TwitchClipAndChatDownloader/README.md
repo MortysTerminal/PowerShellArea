@@ -1,4 +1,4 @@
-### About this script
+## About this script
 
 This is a script, which will give you the opportunity to download all clips + chat from your channel from twitch. It uses native elements of PowerShell (which is pre-installed on every Windows Computer (7+ and newer))
 It works completly automatic, after you entered the correct settings into the "config.motm" file. *You can open this with the any Editor*
