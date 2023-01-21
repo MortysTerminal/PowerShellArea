@@ -1,4 +1,6 @@
-## About the Script
+*Version 1.0
+Created at: 19.01.2023*
+
 This is a script, which will give you the opportunity to download all clips + chat from your channel from twitch. It uses native elements of PowerShell (which is pre-installed on every Windows Computer (7+ and newer))
 It works completly automatic, after you entered the correct settings into the "config.motm" file. *You can open this with the any Editor*
 
@@ -15,38 +17,18 @@ I use the "TwitchDownloader" for my project, which is a Program from @lay295 fro
 
 *I'm working on a Tutorial YouTube Video at the moment, but for now here is little step-for-step tutorial in my terrific english. Why? Because I need to learn it.*
 
-
-**Before you start, you need to create a new App on Twitch-Developer!** (https://dev.twitch.tv/console/apps)
-```
-Click on "New Application"
-> Name: WHATEVER YOU WANT
-> OAuth Redirect URLs : http://localhost
-> Category: Other
-> Create
-> Then Click on the App in the List and on "Modify"
-> You can see the "App-ID" or "Client-ID" there and you can create a secret - ADD THEM TO THE VARIABLES
-```
-
 1. Download the latest .zip File from this repository
 2. Unzip the folder to any **local** desired location
 3. Start the script once by starting the file "start.bat"
 	1. The script will create the config file for you. You need to edit that file for your needs.
 	2. You need to edit the file like:
-	
-```
-DOWNLOADPATH=YOU LOCAL DOWNLOAD PATH (C:\\Download)
-CHANNELNAME=YOUR CHANNELNAME FROM TWITCH (mortys_welt)
-APPID=YOUR APPID (CLIENT-ID or APP-ID FROM TWITCH)
-APPSECRET=YOU APPSECRET (YOUR GENERATED CLIENT/APP SECRET)
-CHATDOWNLOAD=YES or NO
-```
+
+> DOWNLOADPATH=YOU LOCAL DOWNLOAD PATH (C:\\Download)
+> CHANNELNAME=YOUR CHANNELNAME FROM TWITCH (mortys_welt)
+> APPID=YOUR APPID (You need to generate this through Twitch-Developer)
+> APPSECRET=YOU APPSECRET (You need to generate this through Twitch-Developer)
+> CHATDOWNLOAD=YES or NO
 
 4. After you edited the *config.motm* file, you can start the script "start.bat" again.
 5. It will start to connect to twitch and verfiy your data. If anything is wrong, then the script will tell you what exactly is wrong.
 6. The script will automaticly read all your Clips from your Channel and start downloading the Clips in the desired folder. *(+ Chat, if you configured "YES" in the config-file)
-
-## Changelog
-Version 1.1
-- Added Check of free space of local disk before downloading clip
-- Bug fixes:
-	- Fixed: Wrong Name given for Chat-Rendered mp4 file

@@ -351,6 +351,13 @@ function LadeChatRunter{
         $funcClipName
     )
     Process{
+
+        # Remove .mp4 from folder Path
+        $toRemove = ".mp4"
+        if($funcClipName.Contains($toRemove)){
+            $funcClipName = $funcClipName.Replace($toRemove,'')
+        }
+
         # needed filenames (json and mp4 for chat)
         $clipchatjsonfilename = $funcClipDownloadPath + "\" + $funcClipName + "_chat.json"
         $clipchatfilename = $funcClipDownloadPath + "\" + $funcClipName + "_chat.mp4"
@@ -383,6 +390,19 @@ function LadeChatRunter{
         Write-Host "Loesche JSON-Datei"
         Remove-Item $clipchatjsonfilename
     }
+}
+
+function Get-FreeSpace {
+    Param(
+        $path
+    );
+
+    $free = Get-WmiObject Win32_Volume -Filter "DriveType=3" |
+            Where-Object { $path -like "$($_.Name)*" } |
+            Sort-Object Name -Desc |
+            Select-Object -First 1 FreeSpace |
+            ForEach-Object { $_.FreeSpace / (1024*1024) }
+    return ([int]$free)
 }
 
 ################################################
@@ -551,8 +571,31 @@ for($i=0; $i -lt $object.data.Count; $i++)
             # User-Output
             Write-Host "$filename"
 
+            # TODO: Lese verfuegbaren Speicher aus
+            # TODO: Dateigroesse aus URL auslesen: (Invoke-WebRequest $download_URL -Method Head).Headers.'Content-Length'
+            
+            try{
+                # size of the clip that will be downloaded
+                $downloadsize = (((Invoke-WebRequest $download_URL -Method Head).Headers.'Content-Length') / (1024*1024))
+
+                # free space of the downloadpath
+                $freespace = Get-FreeSpace -path $downloadpath
+
+                # if downloadsize bigger then free space (not enough space!)
+                if($downloadsize -gt $freespace){
+                    Write-Host "Nicht genügend freier Speicher vorhanden!" -ForegroundColor Red
+                    Write-Host "==== SKRIPT WIRD ABGEBROCHEN! ====" -ForegroundColor Red
+                    anyKey
+                }
+            }
+            catch{
+                Write-Host "Fehler beim auslesen des freien Speichers"
+                anyKey
+            }
+
             # start download to temp-file named "downloadfile" through our webclient
             $WebClient.DownloadFile($download_URL, $downloadfile)
+
             try 
             {
                 # rename the temp-file to the filename of the Clip
