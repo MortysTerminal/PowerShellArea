@@ -1,6 +1,4 @@
-*Version 1.0
-Created at: 19.01.2023*
-
+## About the Script
 This is a script, which will give you the opportunity to download all clips + chat from your channel from twitch. It uses native elements of PowerShell (which is pre-installed on every Windows Computer (7+ and newer))
 It works completly automatic, after you entered the correct settings into the "config.motm" file. *You can open this with the any Editor*
 
@@ -46,3 +44,9 @@ CHATDOWNLOAD=YES or NO
 4. After you edited the *config.motm* file, you can start the script "start.bat" again.
 5. It will start to connect to twitch and verfiy your data. If anything is wrong, then the script will tell you what exactly is wrong.
 6. The script will automaticly read all your Clips from your Channel and start downloading the Clips in the desired folder. *(+ Chat, if you configured "YES" in the config-file)
+
+## Changelog
+Version 1.1
+- Added Check of free space of local disk before downloading clip
+- Bug fixes:
+	- Fixed: Wrong Name given for Chat-Rendered mp4 file
