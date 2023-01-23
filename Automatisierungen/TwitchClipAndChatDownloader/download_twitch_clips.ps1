@@ -16,9 +16,9 @@
 .OUTPUTS
   Downloads all clips and skips the clips that is already downloaded into the disered local path.
 .NOTES
-  Version:        0.5
+  Version:        1.2
   Author:         Martin B. @MortysTerminal (at GitHub) 
-  Creation Date:  19.01.2023
+  Creation Date:  19.01.2023 (Last change: 23.01.2023)
   Purpose/Change: Automation to download all your Twitch-Clips and skip the ones, that are already downloaded
 #>
 
@@ -30,7 +30,7 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
 
 # Logpath -- please dont modify this
 # You can use the log file inside the Scripts-Folder to debug
-#try{ New-Item -Path $pwd -Name "log" -ItemType File -ErrorAction 'silentlycontinue' | Out-Null }
+#try{ New-Item -Path $pwd -Name "log.log" -ItemType File -ErrorAction 'silentlycontinue' | Out-Null }
 #catch{ Write-Host "Fehler beim Erstellen der Log-Datei. Keine Berechtigung? - Ueberspringe Fehler!" -ForegroundColor Yellow }
 $Logfile = ".\log\log"
 
