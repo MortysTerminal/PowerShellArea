@@ -20,14 +20,7 @@ I use the "TwitchDownloader" for my project, which is a Program from @lay295 fro
 2. Unzip the folder to any **local** desired location
 3. Start the script once by starting the file "start.bat"
 	1. The script will create the config file for you. You need to edit that file for your needs.
-	2. You need to edit the file like:
-
-> DOWNLOADPATH=YOU LOCAL DOWNLOAD PATH (C:\\Download)
-> CHANNELNAME=YOUR CHANNELNAME FROM TWITCH (mortys_welt)
-> APPID=YOUR APPID (You need to generate this through Twitch-Developer)
-> APPSECRET=YOU APPSECRET (You need to generate this through Twitch-Developer)
-> CHATDOWNLOAD=YES or NO
-
+	(Take a look inside the "example_config" file ; there are examples of entries or how it needs to look like
 4. After you edited the *config.motm* file, you can start the script "start.bat" again.
 5. It will start to connect to twitch and verfiy your data. If anything is wrong, then the script will tell you what exactly is wrong.
 6. The script will automaticly read all your Clips from your Channel and start downloading the Clips in the desired folder. *(+ Chat, if you configured "YES" in the config-file)
@@ -35,6 +28,14 @@ I use the "TwitchDownloader" for my project, which is a Program from @lay295 fro
 ## Changelog
 
 =======
+Version 1.5:
+- Added the ability to filter all the requested Clips. You can set those inside the 'config.motm' file:
+	- Filter "CLIPFILTERDAYS" added
+	- Filter "CLIPFILTERCREATOR" added
+	- Filter "CLIPFILTERSTARTDATE" added
+	- Filter "CLIPFILTERENDDATE" added
+	- Filter "CLIPFILTERGAMEID" added
+	
 Version 1.2:
 - Added the possibility to have a task created automatically. ** WINDOWS ONLY**
 	- After creating a task, the trigger and the login must be adjusted! (Task scheduling in Windows)
