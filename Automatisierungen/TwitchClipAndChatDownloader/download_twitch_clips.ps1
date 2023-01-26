@@ -436,7 +436,7 @@ function GetAllClipsFromTwitch{
         }
         else{
             Write-Host "Enddatum - Wird auf HEUTE gesetzt." -ForegroundColor Yellow 
-            $enddate = BuildTwitchDate -btddate (Get-Date -Format "dd.MM.yyyy")
+            $enddate = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
             $ed = "&ended_at=$enddate" 
         }
         #if($null -ne $gameid)       { $gd = "&game_id=$gameid"  } # crsiscoreid = 575087095
