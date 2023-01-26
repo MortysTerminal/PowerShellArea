@@ -33,6 +33,7 @@ I use the "TwitchDownloader" for my project, which is a Program from @lay295 fro
 6. The script will automaticly read all your Clips from your Channel and start downloading the Clips in the desired folder. *(+ Chat, if you configured "YES" in the config-file)
 
 ## Changelog
+
 =======
 Version 1.2:
 - Added the possibility to have a task created automatically. ** WINDOWS ONLY**
