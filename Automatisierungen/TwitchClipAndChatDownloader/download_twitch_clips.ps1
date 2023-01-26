@@ -1,6 +1,7 @@
 ﻿<#############################################################
 
  TODO: For myself ( YOU CAN IGNORE THAT )
+ - Clips filtern
  - Diverse Ablaeufe mehr in Funktionen umziehen, damit der Code uebersichtlicher wird
  - Code aufraeumen
  - Kommentare ueberarbeiten!!
@@ -47,6 +48,71 @@ else {
     Write-Host "Skript wird abgebrochen" -ForegroundColor Red
     anyKey
 }
+
+# create array with config-keywords
+$MOTMConfig = @(
+    "DOWNLOADPATH",
+    "CHANNELNAME",
+    "APPID",
+    "APPSECRET",
+    "CHATDOWNLOAD",
+    "CLIPFILTERDAYS",
+    "CLIPFILTERCREATOR",
+    "CLIPFILTERSTARTDATE",
+    "CLIPFILTERENDDATE",
+    "CLIPFILTERGAMEID"
+)
+
+# config to add when config-file is missing
+$contenttoAdd = @" 
+# this is a comment which is ignored by the script
+# Config for the TwitchClipAndChatDownloader
+
+# Enter the Download path here
+# You need to create the path first
+# example: C:\twitch_download
+DOWNLOADPATH=
+
+# Enter the Channelname here
+# example: mortys_welt
+CHANNELNAME=
+
+# Enter the Client-ID and Secret here
+# Add a new Application in your Twitch-Dev
+APPID=
+APPSECRET=
+
+# Enter YES or NO here to Download the Chat or not
+CHATDOWNLOAD=
+
+# FILTERS
+# Enter the Days you want to go back
+# LEAVE IT EMPTY IF YOU WANT TO USE START- AND END-DATE OR ALL CLIPS
+# example: 7 (for 7 Days)
+CLIPFILTERDAYS=
+
+# Enter the Creator of the Clips here if you want
+# LEAVE IT EMPTY TO CHOOSE ALL CLIPS
+# example: mortys_welt
+CLIPFILTERCREATOR=
+
+# Enter the Start and End-Date here
+# Format: 30.02.2022 (dd.MM.yyyy)
+# Every Clip between this timespan will be chosen
+# If EndDate is empty then today will be chosen automaticly
+# ONLY WORKS WHEN CLIPFILTERDAYS IS EMPTY
+# LEAVE IT EMPTY TO CHOOSE ALL CLIPS
+# example startdate: 01.01.2023
+# example enddate:                (empty to choose today automaticly)
+CLIPFILTERSTARTDATE=
+CLIPFILTERENDDATE=
+
+# Enter the Game-ID if you want
+# LEAVE IT EMPTY TO TAKE ALL GAMES AND CLIPS
+# Here you can find a list: https://raw.githubusercontent.com/Nerothos/TwithGameList/master/game_info.csv (props to Nerothos)
+# example: 33214 (fuer Fortnite!)
+CLIPFILTERGAMEID=
+"@
 
 ################################################
 ###### FUNCTIONS
@@ -100,18 +166,23 @@ function ReadAndValidateConfig {
             $checkconfig = Get-Item -Path $configpath -ErrorAction Stop
 
             # read config ; split at '='
-            $configinhalt = ((Get-Content $configpath) -split '=')
+            $configinhalt = ((Get-Content $configpath) -split '=') | Where-Object { $_ -notmatch '^#.*' -and $_ -notmatch '^\s*$' } 
 
             # loop to get the important data from the file
             for ($i = 0; $i -lt $configinhalt.Count;$i++){
                 #Write-Host $configinhalt[$i]
                 switch ($configinhalt[$i])                         
-                {                        
-                    DOWNLOADPATH  {$configdownloadpath = $configinhalt[$i+1]}                        
-                    CHANNELNAME   {$configchannelname = $configinhalt[$i+1]}                        
-                    APPID         {$configappid = $configinhalt[$i+1]}                        
-                    APPSECRET     {$configappsecret = $configinhalt[$i+1]} 
-                    CHATDOWNLOAD  {$configchatdownload = $configinhalt[$i+1]}                                            
+                {
+                    DOWNLOADPATH        {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configdownloadpath = $null } else{$configdownloadpath = $configinhalt[$i+1]}}
+                    CHANNELNAME         {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configchannelname = $null } else{$configchannelname = $configinhalt[$i+1]}}
+                    APPID               {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configappid = $null } else{$configappid = $configinhalt[$i+1]}}
+                    APPSECRET           {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configappsecret = $null } else{$configappsecret = $configinhalt[$i+1]}}
+                    CHATDOWNLOAD        {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configchatdownload = $null } else{$configchatdownload = $configinhalt[$i+1]}}
+                    CLIPFILTERDAYS      {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfilterdays = $null } else{$configclipfilterdays = $configinhalt[$i+1]}}
+                    CLIPFILTERCREATOR   {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfiltercreator = $null } else{$configclipfiltercreator = $configinhalt[$i+1]}}
+                    CLIPFILTERSTARTDATE {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfilterstartdate = $null } else{$configclipfilterstartdate = $configinhalt[$i+1]}}
+                    CLIPFILTERENDDATE   {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfilterenddate = $null } else{$configclipfilterenddate = $configinhalt[$i+1]}}
+                    CLIPFILTERGAMEID    {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfiltergameid = $null } else{$configclipfiltergameid = $configinhalt[$i+1]}}
                 }
             }
         }
@@ -119,12 +190,22 @@ function ReadAndValidateConfig {
             Write-Host "Keine Konfiguration gefunden!" -ForegroundColor Red
             #WriteLog -LogString "Keine Konfiguration gefunden!"
             try{ 
+
+
                 $null = New-Item  -Name config.motm -ItemType File -ErrorAction Stop
+                Add-Content $configpath $contenttoAdd
+                <#
                 Add-Content $configpath "DOWNLOADPATH="
                 Add-Content $configpath "CHANNELNAME="
                 Add-Content $configpath "APPID="
                 Add-Content $configpath "APPSECRET="
                 Add-Content $configpath "CHATDOWNLOAD="
+                Add-Content $configpath "CLIPFILTERDAYS="
+                Add-Content $configpath "CLIPFILTERCREATOR="
+                Add-Content $configpath "CLIPFILTERSTARTDATE="
+                Add-Content $configpath "CLIPFILTERENDDATE="
+                Add-Content $configpath "CLIPFILTERGAMEID="
+                #>
                 Write-Host "Konfiguration erstellt. Bitte Daten dort hineinschreiben und Skript neustarten!"
                 anyKey
             }
@@ -135,8 +216,8 @@ function ReadAndValidateConfig {
             }
         }
         try{
-            ValidateConfig -configdownloadpath $configdownloadpath -configchannelname $configchannelname -configappid $configappid -configappsecret $configappsecret -configchatdownload $configchatdownload
-            return $configdownloadpath, $configchannelname, $configappid, $configappsecret, $configchatdownload
+            ValidateConfig -configdownloadpath $configdownloadpath -configchannelname $configchannelname -configappid $configappid -configappsecret $configappsecret -configchatdownload $configchatdownload -configclipfilterdays $configclipfilterdays -configclipfilterstartdate $configclipfilterstartdate -configclipfilterenddate $configclipfilterenddate -configclipfiltercreator $configclipfiltercreator -configclipfiltergameid $configclipfiltergameid
+            return $configdownloadpath, $configchannelname, $configappid, $configappsecret, $configchatdownload, $configclipfilterdays, $configclipfiltercreator, $configclipfilterstartdate, $configclipfilterenddate, $configclipfiltergameid
         }
         catch{
             Write-Host "Validierungsfehler" -ForegroundColor Red
@@ -152,7 +233,12 @@ function ValidateConfig{
         $configchannelname,
         $configappid,
         $configappsecret,
-        $configchatdownload
+        $configchatdownload,
+        $configclipfilterdays,
+        $configclipfiltercreator,
+        $configclipfilterstartdate,
+        $configclipfilterenddate,
+        $configclipfiltergameid
     )
     Process{
         Write-Host "Teste DOWNLOADPATH..."
@@ -191,13 +277,37 @@ function ValidateConfig{
         if($null -ne $configchatdownload){
             switch($configchatdownload){
                 YES { Write-Host "CHATDOWNLOAD --- OK" -ForegroundColor Green ; $ok += 1}
-                NO  { Write-Host "CHATDOWNLOAD --- NO" -ForegroundColor Yellow ; $ok += 1}
-                Default { Write-Host "CHATDOWNLOAD --- NO" -ForegroundColor Yellow ; $ok += 1}
+                NO  { Write-Host "CHATDOWNLOAD --- SKIP" -ForegroundColor Yellow ; $ok += 1}
+                Default { Write-Host "CHATDOWNLOAD --- SKIP" -ForegroundColor Yellow ; $ok += 1}
             }
         }
 
+        try{
+            $testclipfilterdays = [int]$configclipfilterdays
+            Write-Host "CLIPFILTERDAYS --- OK" -ForegroundColor Green; $ok += 1
+        }catch{
+            Write-Host "CLIPFILTERDAYS --- SKIP" -ForegroundColor Yellow ; $ok += 1
+        }
+
+        try{
+            $testclipfiltergameid = [int]$configclipfiltergameid
+            Write-Host "GAMEID --- OK" -ForegroundColor Green; $ok += 1
+        }catch{
+            Write-Host "GAMEID --- SKIP" -ForegroundColor Yellow ; $ok += 1
+        }
+
+        try {
+            if($configclipfilterenddate -clt $configclipfilterstartdate ){ 
+                Write-Host "End-Datum ist groesser als das Start-Datum! Bitte Konfiguration ueberpruefen!" -ForegroundColor Red
+            }
+            else{$ok += 1}
+        }
+        catch {
+            Write-Host "Fehler bei der Ueberpruefung von End-Datum und Start-Datum" -ForegroundColor Red
+        }
+
         # when the ok-variable equals 4, then every check was an "ok", so the config can be used to run the script
-        if($ok -eq 5){
+        if($ok -eq 8){
             Write-Host "=== KONFIGURATION IST OK === SKRIPT WIRD AUSGEFUEHRT ===" -ForegroundColor Green
         }
         else{
@@ -288,7 +398,109 @@ function GetAllClipsFromTwitch{
     Param(
         $broadcasterID,
         $accessToken,
-        $appID
+        $appID,
+        $daysdate = $null,
+        $creator = $null,
+        $startdate = $null,
+        $enddate = $null,
+        $gameid = $null
+    )
+    Begin{
+        #create empty object that we use to save the clips
+        $clipsammlung = @()
+
+        # save before building twtich-date out of our start and end-date
+        # just for useroutput
+        $writelineStartDate = $startdate
+        $writelineEndDate = $enddate 
+     
+
+        # build strings
+        if($null -ne $daysdate){ $dd = "&started_at=$daysdate"; $startdate = $null ; $enddate = $null}
+
+        #build date format for twitch from startdate
+        if($null -ne $startdate){ 
+            $startdate = BuildTwitchDate -datumart "CLIPFILTERSTARTDATE" -btddate $startdate
+            $sd = "&started_at=$startdate" 
+            Write-Host "Filter von Datum: $writelineStartDate - "
+        }
+        else{ 
+            #Write-Host "Startdatum geleert - Tage-Filter angewendet!" -ForegroundColor Yellow 
+        }
+
+        #build date format for twitch from enddate
+        if($null -ne $enddate){ 
+            $enddate = BuildTwitchDate -datumart "CLIPFILTERENDDATE" -btddate $enddate
+            $ed = "&ended_at=$enddate" 
+            Write-Host "Filter bis Datum: $writelineEndDate"
+        }
+        else{
+            Write-Host "Enddatum - Wird auf HEUTE gesetzt." -ForegroundColor Yellow 
+            $enddate = BuildTwitchDate -btddate (Get-Date -Format "dd.MM.yyyy")
+            $ed = "&ended_at=$enddate" 
+        }
+        #if($null -ne $gameid)       { $gd = "&game_id=$gameid"  } # crsiscoreid = 575087095
+
+        #build date format for twitch from startdate
+        #if($null -eq $startdate)  { Write-Host "Startdatum ist leer" -ForegroundColor Yellow }
+        #else{ $startdate = BuildTwitchDate -datumart "CLIPFILTERSTARTDATE" -btddate $startdate }
+
+        #build date format for twitch from end
+        #if($null -eq $enddate)    { Write-Host "Enddatum ist leer - Wird auf HEUTE gesetzt." -ForegroundColor Yellow; $enddate = BuildTwitchDate -btddate (Get-Date -Format "dd.MM.yyyy") }
+        #else{ $enddate = BuildTwitchDate -datumart "CLIPFILTERENDDATE" -btddate $enddate }
+
+        $builturl = "https://api.twitch.tv/helix/clips?first=100$dd$sd$ed&broadcaster_id=$broadcasterID"
+        
+        ##$test = curl.exe -X GET "https://api.twitch.tv/helix/games?name=Crisis%20Core:%20Final%20Fantasy%20VII%20-%20Reunion" -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
+
+    }
+    Process{
+        # read first 100 clips
+        $clips = curl.exe --silent -X GET $builturl.ToString() -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
+        #"https://api.twitch.tv/helix/clips?broadcaster_id=$broadcasterID&started_at=$datum"
+        #$clips = curl.exe --silent -X GET "https://api.twitch.tv/helix/clips?first=100&broadcaster_id=$broadcasterID" -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
+
+        # read next pagination cursor
+        $after = $clips.pagination.cursor
+        # add object to our list
+        $clipsammlung += $clips
+
+        # if there is more then 100 clips then get the next 100 clips
+        if($null -ne $after){
+            do {
+                #read the next 100 clips with after-cursor
+                $rotatingURL = $builturl + "&after=$after"
+                $clips = curl.exe --silent -X GET $rotatingURL.ToString() -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
+                # save new cursor
+                $after = $clips.pagination.cursor
+                # add object to our list
+                $clipsammlung += $clips
+            } until (
+                $null -eq $after
+            )
+            return $clipsammlung
+        }
+        else{
+            return $clipsammlung
+        }
+
+    }
+    End{
+        # LOG OUTPUT
+        $length = $clipsammlung.data.length
+        #WriteLog -LogString "$length Clips gefunden! ($broadcasterID)"
+    }
+}
+
+function GetClipsFromTwitchByDate{
+    Param(
+        $broadcasterID,
+        $accessToken,
+        $appID,
+        $daysdate = $null,
+        $creator = $null,
+        $startdate,
+        $gameid = 0
     )
     Begin{
         #create empty object that we use to save the clips
@@ -327,15 +539,14 @@ function GetAllClipsFromTwitch{
         #WriteLog -LogString "$length Clips gefunden! ($broadcasterID)"
     }
 }
-
 function CleanUp{
     Param(
         $funcdownloadtempfile
         )
     Begin{
         try{
-            Get-Item $funcdownloadtempfile -ErrorAction Stop
-            Remove-Item $funcdownloadtempfile -Force -ErrorAction Stop
+            Get-Item $funcdownloadtempfile -ErrorAction Stop | Out-Null
+            Remove-Item $funcdownloadtempfile -Force -ErrorAction Stop | Out-Null
         }
         catch{
             Write-Host "Temporaere Dateien bereits aufgeraeumt"
@@ -376,19 +587,34 @@ function LadeChatRunter{
             else{
                 # download raw chat-file (json) that we need to create the video
                 Write-Host "Lade RAW-Chat herunter:" 
-                .\TwitchDownloaderCLI.exe chatdownload --id $ClipID -o $clipchatjsonfilename -E
-                Write-Host "RAW-Chat heruntergeladen!" -ForegroundColor Green
+                try{
+                    .\TwitchDownloaderCLI.exe chatdownload --id $ClipID -o $clipchatjsonfilename -E 
+                    if(Test-Path -Path $clipchatjsonfilename){
+                        Write-Host "RAW-Chat heruntergeladen!" -ForegroundColor Green
+                    }
+                    else{
+                        Write-Host "Chat nicht mehr vorhanden - Ueberpringen ..."
+                    }
+                }
+                catch{ Write-Host "Fehler beim Erstellen der Chat-RAW-Datei (json) - Chat nicht mehr vorhanden?" -ForegroundColor Red}
+                
 
                 # create the rendered chat-video
                 Write-Host "Erstelle Chat-Rendered Video"
-                .\TwitchDownloaderCLI.exe chatrender -i $clipchatjsonfilename -h 1080 -w 422 --framerate 30 --update-rate 0 --font-size 18 -o $clipchatfilename
-                Write-Host "Chat-Rendered Video erstellt!" -ForegroundColor Green
+                try{ 
+                    .\TwitchDownloaderCLI.exe chatrender -i $clipchatjsonfilename -h 1080 -w 422 --framerate 30 --update-rate 0 --font-size 18 -o $clipchatfilename 
+                    if(Test-Path -Path $clipchatfilename){
+                        Write-Host "Chat-Rendered Video erstellt!" -ForegroundColor Green
+                    }
+                }
+                catch{Write-Host "Fehler beim Erstellen der Chat-RAW-Datei (json) - Chat nicht mehr vorhanden?" -ForegroundColor Red}
+                
             }
         }        
     }
     End{
         Write-Host "Loesche JSON-Datei"
-        Remove-Item $clipchatjsonfilename
+        Remove-Item $clipchatjsonfilename | Out-Null
     }
 }
 
@@ -405,6 +631,64 @@ function Get-FreeSpace {
     return ([int]$free)
 }
 
+function BuildTwitchDate {
+    Param (
+        $btddate,
+        $datumart = $null
+    )
+    Process {
+        try{
+            $btd = [Datetime]::ParseExact($btddate, 'dd.MM.yyyy', $null)
+            $btd = Get-Date $btd -Format "yyyy-MM-ddTHH:mm:ssZ"
+        }
+        catch{
+            Write-Host "Wallah diese Datum nix gut. ($datumart  $btddate)"
+            anyKey
+            return $null
+        }
+    }    
+    End {
+        return $btd
+    }
+}
+
+function FilterClipsForCreator {
+    param (
+        $fcfcclips,
+        $fcfccreatorname
+    )
+
+    process {
+        $fcfcnewcliplist = $fcfcclips  | Select-Object -ExpandProperty "data" | Where-Object {$_.creator_name -eq $fcfccreatorname}
+
+        $fcfcObject = [PSCustomObject]@{
+            data = $fcfcnewcliplist
+        }
+    }
+    
+    end {
+        return $fcfcObject
+    }
+}
+
+function FilterForGameID {
+    param (
+        $ffgiclips,
+        $ffgigameid
+    )    
+    process {
+        $ffginewcliplist = $ffgiclips  | Select-Object -ExpandProperty "data" | Where-Object {$_.game_id -eq $ffgigameid}
+
+        $ffgiObject = [PSCustomObject]@{
+            data = $ffginewcliplist
+        }
+    }
+    
+    end {
+        return $ffgiObject
+    }
+}
+
 ################################################
 ###### SETUP
 ################################################
@@ -419,6 +703,11 @@ $channelname = $config[1]
 $appID = $config[2]
 $secret = $config[3]
 $chatdownload = $config[4].ToLower()
+$clipfilterdays = $config[5]
+$clipfiltercreator = $config[6]
+$clipfilterstartdate = $config[7]
+$clipfilterenddate = $config[8]
+$clipfiltergameid = $config[9]
 
 
 # get items from the downloadpath
@@ -493,12 +782,76 @@ Write-Host "Benutzerdaten gelesen! ID gespeichert. (ID=$broadcasterID)"
 
 #$object = curl.exe -X GET "https://api.twitch.tv/helix/clips?broadcaster_id=$broadcasterID" -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
 
-Write-Host "Lese alle Clips vom Kanal aus ... "
+
+Write-Host "Erstelle Anfrage anhand der angegebenen Filter"
 Start-Sleep 1
+
+# DEBUG: ZEITMESSUNG
+##$Startzeit = Get-Date
+
+# VERSION 1.2
+<#
+switch($clipfilterdays){
+    "7"     { Write-Host "Letzte 7 Tage werden gefiltert" ; $clipfilterdays =  Get-Date ((Get-Date).AddDays(-7)) -Format "yyyy-MM-ddTHH:mm:ssZ" }
+    "30"    { Write-Host "Letzte 30 Tage werden gefiltert"; $clipfilterdays = Get-Date ((Get-Date).AddDays(-30)) -Format "yyyy-MM-ddTHH:mm:ssZ" }
+    Default { Write-Host "Keine Filterung der Tage" -ForegroundColor Yellow ; $clipfilterdays = $null}
+}
+#>
+# / VERSION 1.2
+
+
+# Filter the needed days, if it is set in the config
+try{
+    if($clipfilterdays -ne 0){
+        if($clipfilterdays -match "^\d+$"){
+            #Write-Host "Passe an letzte $clipfilterdays Tag/e an."
+            $days = -$clipfilterdays
+            Write-Host "Letzte $clipfilterdays Tage werden gefiltert"
+            $clipfilterdays =  Get-Date ((Get-Date).AddDays(($days))) -Format "yyyy-MM-ddTHH:mm:ssZ" 
+        }
+            else{ 
+                $clipfilterdays = $null
+            }
+    }
+}catch{
+    #Write-Host "Keine Filterung der Tage - Fehler beim auslesen. Daten ueberpruefen! Filter wird nicht beachtet..." -ForegroundColor Yellow 
+    $clipfilterdays = $null
+}
+
+
+
+
 try { 
-    $object = GetAllClipsFromTwitch -broadcasterID $broadcasterID -accessToken $accesstoken -appID $appID
+    #build date format for twitch from startdate
+    #if($null -eq $clipfilterstartdate)  { Write-Host "Startdatum ist leer" -ForegroundColor Yellow }
+    #else{ $clipfilterstartdate = BuildTwitchDate -datumart "CLIPFILTERSTARTDATE" -btddate $clipfilterstartdate }
+
+    #build date format for twitch from end
+    #if($null -eq $clipfilterenddate)    { Write-Host "Enddatum ist leer" -ForegroundColor Yellow; $clipfilterenddate = BuildTwitchDate -btddate (Get-Date -Format "dd.MM.yyyy") }
+    #else{ $clipfilterenddate = BuildTwitchDate -datumart "CLIPFILTERENDDATE" -btddate $clipfilterenddate }
+
+    Write-Host "Lese Clips aus ... "
+    $object = GetAllClipsFromTwitch -broadcasterID $broadcasterID -accessToken $accesstoken -appID $appID -daysdate $clipfilterdays -creator $clipfiltercreator -startdate $clipfilterstartdate -enddate $clipfilterenddate -gameid $clipfiltergameid
     $length = $object.data.length
-    Write-Host "$length Clips ausgelesen. Fahre fort ..." -ForegroundColor Green
+    # DEBUG: ZEITMESSUNG
+    ##$Endzeit = New-TimeSpan -Start $Startzeit -End (get-date)
+    #Write-Host "$length Clips ausgelesen. Fahre fort ... (Zeit: $Endzeit)" -ForegroundColor Green
+    # DEBUG: ZEITMESSUNG
+    Write-Host "Insgesamt $length Clips ausgelesen. Fahre fort ... " -ForegroundColor Green
+
+    # Filter Creator
+    if($null -ne $clipfiltercreator){
+        $object = FilterClipsForCreator -fcfcclips $object -fcfccreatorname $clipfiltercreator
+        try{ $length = $object.data.length ; Write-Host "Clips nach Creator ($clipfiltercreator) gefiltert ($length Clips)"}
+        catch{ Write-Host "Creator-Filterung: Objekt ist nach Anwendung leer - keine Clips zum Creator ($clipfiltercreator) gefunden!" ; $length = 0 }
+    }
+
+    # Filter game-id
+    if(($null -ne $clipfiltergameid) -or ($clipfiltergameid -eq 0)){
+        $object = FilterForGameID -ffgiclips $object -ffgigameid $clipfiltergameid
+        try{ $length = object.data.length ; Write-Host "Game-ID in Konfig gefunden. Clips wurden nach Game-ID ($clipfiltergameid) gefiltert ($length Clips)"}
+        catch{ Write-Host "GameID-Filterung: Objekt ist nach Filterung nach GameID ($clipfiltergameid) leer!"; $length = 0 }
+    }
     Start-Sleep 1
 }
 catch{ 
@@ -507,7 +860,6 @@ catch{
 
 # create webclient and prepare for the download
 $WebClient = New-Object System.Net.WebClient
-
 
 # start des downloads
 for($i=0; $i -lt $object.data.Count; $i++)
@@ -644,12 +996,6 @@ for($i=0; $i -lt $object.data.Count; $i++)
     # reset "exist" variable, so we can check again if the next clip exists
     $fileexists = $false
 }
-
-
-
-
-
-
 
 CleanUp -funcdownloadtempfile $downloadfile
 
