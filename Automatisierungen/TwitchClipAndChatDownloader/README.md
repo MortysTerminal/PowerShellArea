@@ -14,7 +14,10 @@ I use the "TwitchDownloader" for my project, which is a Program from @lay295 fro
 
 ## How to get started
 
-*I'm working on a Tutorial YouTube Video at the moment, but for now here is little step-for-step tutorial in my terrific english. Why? Because I need to learn it.*
+>Here is my Tutorial of how you can use the Script. At the moment its only in german:
+https://youtu.be/NVcaAa4HlFw
+
+*For now here is little step-for-step tutorial in my terrific english. Why? Because I need to learn it.*
 
 1. Download the latest .zip File from this repository
 2. Unzip the folder to any **local** desired location
