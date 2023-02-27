@@ -60,7 +60,8 @@ $MOTMConfig = @(
     "CLIPFILTERCREATOR",
     "CLIPFILTERSTARTDATE",
     "CLIPFILTERENDDATE",
-    "CLIPFILTERGAMEID"
+    "CLIPFILTERGAMEID",
+    "CLIPMINIMUMVIEWS"
 )
 
 # config to add when config-file is missing
@@ -112,12 +113,16 @@ CLIPFILTERENDDATE=
 # Here you can find a list: https://raw.githubusercontent.com/Nerothos/TwithGameList/master/game_info.csv (props to Nerothos)
 # example: 33214 (fuer Fortnite!)
 CLIPFILTERGAMEID=
+
+# Enter the minimum Views that are needed to download the clip
+# It always checks for "greater then your number"
+# example views = 100
+CLIPMINIMUMVIEWS=
 "@
 
 ################################################
 ###### FUNCTIONS
 ################################################
-
 function anyKey{
     Write-Host -NoNewline 'Druecke eine beliebige Taste um das Skript zu beenden...' -ForegroundColor Yellow;
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
@@ -183,6 +188,7 @@ function ReadAndValidateConfig {
                     CLIPFILTERSTARTDATE {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfilterstartdate = $null } else{$configclipfilterstartdate = $configinhalt[$i+1]}}
                     CLIPFILTERENDDATE   {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfilterenddate = $null } else{$configclipfilterenddate = $configinhalt[$i+1]}}
                     CLIPFILTERGAMEID    {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipfiltergameid = $null } else{$configclipfiltergameid = $configinhalt[$i+1]}}
+                    CLIPMINIMUMVIEWS    {if($MOTMConfig.Contains($configinhalt[$i+1])){ $configclipminimumviews = $null } else{$configclipminimumviews = $configinhalt[$i+1]}}
                 }
             }
         }
@@ -216,8 +222,8 @@ function ReadAndValidateConfig {
             }
         }
         try{
-            ValidateConfig -configdownloadpath $configdownloadpath -configchannelname $configchannelname -configappid $configappid -configappsecret $configappsecret -configchatdownload $configchatdownload -configclipfilterdays $configclipfilterdays -configclipfilterstartdate $configclipfilterstartdate -configclipfilterenddate $configclipfilterenddate -configclipfiltercreator $configclipfiltercreator -configclipfiltergameid $configclipfiltergameid
-            return $configdownloadpath, $configchannelname, $configappid, $configappsecret, $configchatdownload, $configclipfilterdays, $configclipfiltercreator, $configclipfilterstartdate, $configclipfilterenddate, $configclipfiltergameid
+            ValidateConfig -configdownloadpath $configdownloadpath -configchannelname $configchannelname -configappid $configappid -configappsecret $configappsecret -configchatdownload $configchatdownload -configclipfilterdays $configclipfilterdays -configclipfilterstartdate $configclipfilterstartdate -configclipfilterenddate $configclipfilterenddate -configclipfiltercreator $configclipfiltercreator -configclipfiltergameid $configclipfiltergameid -configclipminimumviews $configclipminimumviews
+            return $configdownloadpath, $configchannelname, $configappid, $configappsecret, $configchatdownload, $configclipfilterdays, $configclipfiltercreator, $configclipfilterstartdate, $configclipfilterenddate, $configclipfiltergameid, $configclipminimumviews
         }
         catch{
             Write-Host "Validierungsfehler" -ForegroundColor Red
@@ -238,7 +244,8 @@ function ValidateConfig{
         $configclipfiltercreator,
         $configclipfilterstartdate,
         $configclipfilterenddate,
-        $configclipfiltergameid
+        $configclipfiltergameid,
+        $configclipminimumviews
     )
     Process{
         Write-Host "Teste DOWNLOADPATH..."
@@ -306,6 +313,15 @@ function ValidateConfig{
             Write-Host "Fehler bei der Ueberpruefung von End-Datum und Start-Datum" -ForegroundColor Red
         }
 
+        try {
+            $configclipminimumviews = [int]$configclipminimumviews
+            Write-Host "Eingegebene Viewszahl ist OK."
+        }
+        catch {
+            Write-Host "Fehler bei der eingegebene Viewszahl setze Filter auf 0! Setze fort ..." -ForegroundColor Yellow
+            $configclipminimumviews = 0
+        }
+        
         # when the ok-variable equals 4, then every check was an "ok", so the config can be used to run the script
         if($ok -eq 8){
             Write-Host "=== KONFIGURATION IST OK === SKRIPT WIRD AUSGEFUEHRT ===" -ForegroundColor Green
@@ -545,8 +561,7 @@ function CleanUp{
         )
     Begin{
         try{
-            Get-Item $funcdownloadtempfile -ErrorAction Stop | Out-Null
-            Remove-Item $funcdownloadtempfile -Force -ErrorAction Stop | Out-Null
+            if(Get-Item $funcdownloadtempfile -ErrorAction Stop | Out-Null) { Remove-Item $funcdownloadtempfile -Force -ErrorAction Stop | Out-Null }
         }
         catch{
             Write-Host "Temporaere Dateien bereits aufgeraeumt"
@@ -689,6 +704,19 @@ function FilterForGameID {
     }
 }
 
+function FilterForMinimumViews{
+    param(
+        $ffmvclips,
+        $ffmvminimumviews
+    )
+    process{
+        $ffmvnewcliplist = $ffmvclips | Select-Object -ExpandProperty "data" | Where-Object {$_.view_count -ge $ffmvminimumviews}
+    }
+    end{
+        return $ffmvnewcliplist;
+    }
+}
+
 ################################################
 ###### SETUP
 ################################################
@@ -708,6 +736,7 @@ $clipfiltercreator = $config[6]
 $clipfilterstartdate = $config[7]
 $clipfilterenddate = $config[8]
 $clipfiltergameid = $config[9]
+$clipminimumviews = $config[10]
 
 
 # get items from the downloadpath
@@ -820,7 +849,6 @@ try{
 
 
 
-
 try { 
     #build date format for twitch from startdate
     #if($null -eq $clipfilterstartdate)  { Write-Host "Startdatum ist leer" -ForegroundColor Yellow }
@@ -833,6 +861,7 @@ try {
     Write-Host "Lese Clips aus ... "
     $object = GetAllClipsFromTwitch -broadcasterID $broadcasterID -accessToken $accesstoken -appID $appID -daysdate $clipfilterdays -creator $clipfiltercreator -startdate $clipfilterstartdate -enddate $clipfilterenddate -gameid $clipfiltergameid
     $length = $object.data.length
+
     # DEBUG: ZEITMESSUNG
     ##$Endzeit = New-TimeSpan -Start $Startzeit -End (get-date)
     #Write-Host "$length Clips ausgelesen. Fahre fort ... (Zeit: $Endzeit)" -ForegroundColor Green
@@ -849,8 +878,15 @@ try {
     # Filter game-id
     if(($null -ne $clipfiltergameid) -or ($clipfiltergameid -eq 0)){
         $object = FilterForGameID -ffgiclips $object -ffgigameid $clipfiltergameid
-        try{ $length = object.data.length ; Write-Host "Game-ID in Konfig gefunden. Clips wurden nach Game-ID ($clipfiltergameid) gefiltert ($length Clips)"}
+        try{ $length = $object.data.length ; Write-Host "Game-ID in Konfig gefunden. Clips wurden nach Game-ID ($clipfiltergameid) gefiltert ($length Clips)"}
         catch{ Write-Host "GameID-Filterung: Objekt ist nach Filterung nach GameID ($clipfiltergameid) leer!"; $length = 0 }
+    }
+
+    # Filter ClipMinimumViews
+    if(($null -ne $clipminimumviews) -or ($clipminimumviews -ge 0)){
+        $object = FilterForMinimumViews -ffmvclips $object -ffmvminimumviews $clipminimumviews
+        try{ $length = $object.data.length ; Write-Host "View-Filterung gefunden. Clips wurden nach groesser als $clipminimumviews Views gefiltert. ($length Clips)" }
+        catch{ Write-Host "Views-Filterung: Object nach der Filter nach Views ($clipminimumviews) leer!"; $length = 0 }
     }
     Start-Sleep 1
 }

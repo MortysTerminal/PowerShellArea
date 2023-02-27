@@ -46,3 +46,8 @@ CLIPFILTERENDDATE=
 # Here you can find a list: https://raw.githubusercontent.com/Nerothos/TwithGameList/master/game_info.csv (props to Nerothos)
 # example: 33214 (fuer Fortnite!)
 CLIPFILTERGAMEID=0
+
+# Enter the minimum Views that are needed to download the clip
+# It always checks for "greater then your number"
+# example views; 100
+CLIPMINIMUMVIEWS=100
