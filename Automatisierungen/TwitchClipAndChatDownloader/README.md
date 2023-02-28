@@ -31,6 +31,10 @@ https://youtu.be/NVcaAa4HlFw
 ## Changelog
 
 =======
+Version 1.6:
+- Added the ability to filter all the requested Clips for minimum Views (Good for bigger Channels)
+	- Filter "CLIPMINIMUMVIEWS" added
+	
 Version 1.5:
 - Added the ability to filter all the requested Clips. You can set those inside the 'config.motm' file:
 	- Filter "CLIPFILTERDAYS" added
