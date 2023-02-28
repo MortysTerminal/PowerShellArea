@@ -17,9 +17,9 @@
 .OUTPUTS
   Downloads all clips and skips the clips that is already downloaded into the disered local path.
 .NOTES
-  Version:        1.2
+  Version:        1.6
   Author:         Martin B. @MortysTerminal (at GitHub) 
-  Creation Date:  19.01.2023 (Last change: 23.01.2023)
+  Creation Date:  19.01.2023 (Last change: 28.02.2023)
   Purpose/Change: Automation to download all your Twitch-Clips and skip the ones, that are already downloaded
 #>
 
@@ -811,23 +811,8 @@ Write-Host "Benutzerdaten gelesen! ID gespeichert. (ID=$broadcasterID)"
 
 #$object = curl.exe -X GET "https://api.twitch.tv/helix/clips?broadcaster_id=$broadcasterID" -H "Authorization: Bearer $accesstoken" -H "Client-ID: $appID" | ConvertFrom-Json
 
-
 Write-Host "Erstelle Anfrage anhand der angegebenen Filter"
 Start-Sleep 1
-
-# DEBUG: ZEITMESSUNG
-##$Startzeit = Get-Date
-
-# VERSION 1.2
-<#
-switch($clipfilterdays){
-    "7"     { Write-Host "Letzte 7 Tage werden gefiltert" ; $clipfilterdays =  Get-Date ((Get-Date).AddDays(-7)) -Format "yyyy-MM-ddTHH:mm:ssZ" }
-    "30"    { Write-Host "Letzte 30 Tage werden gefiltert"; $clipfilterdays = Get-Date ((Get-Date).AddDays(-30)) -Format "yyyy-MM-ddTHH:mm:ssZ" }
-    Default { Write-Host "Keine Filterung der Tage" -ForegroundColor Yellow ; $clipfilterdays = $null}
-}
-#>
-# / VERSION 1.2
-
 
 # Filter the needed days, if it is set in the config
 try{
