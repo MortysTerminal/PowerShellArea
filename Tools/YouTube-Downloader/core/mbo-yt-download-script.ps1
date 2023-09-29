@@ -43,7 +43,7 @@ $versionfile = $scriptpath + "/version.motm"
 #$releases = "https://api.github.com/repos/$repo/releases"
 $releases = "https://github.com/$repo/releases/latest"
 $aktuelleVersion = Get-Content $versionfile -erroraction 'silentlycontinue'
-
+$ytdlpCheck = Test-Path -Path $downloadfilepath -PathType Leaf
 
 # Webrequest um die Versionen aus Github-Repo auszulesen 
 Write-Host "Ermitteln der neuesten Version"
@@ -54,7 +54,7 @@ $tag = $realTagUrl.split('/')[-1].Trim('v')
 #$tag = (Invoke-WebRequest $releases | ConvertFrom-Json)[0].tag_name
 
 # Pruefe ob Version identisch zur gespeicherten Version
-if($tag.Equals($aktuelleVersion)){
+if($tag.Equals($aktuelleVersion) -and (Test-Path -Path $downloadfilepath -PathType Leaf)){
     Write-Host "Aktuellste Version yt-dlp.exe bereits vorhanden!" -ForegroundColor Green
 }
 else
@@ -63,7 +63,7 @@ else
     $download = "https://github.com/$repo/releases/download/$tag/$file"
 
     Write-Host "Starte Download"
-    Get-FileFromWeb($download,$downloadfilepath)
+    #Get-FileFromWeb($download,$downloadfilepath)
     $webclient = New-Object System.Net.WebClient
     $webclient.DownloadFile($download,$downloadfilepath)
 
