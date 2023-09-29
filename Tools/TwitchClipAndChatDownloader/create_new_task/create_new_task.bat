@@ -1,0 +1,1 @@
+powershell.exe -executionpolicy bypass -file ".\script_cnt.ps1"
