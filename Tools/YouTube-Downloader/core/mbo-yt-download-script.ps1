@@ -23,11 +23,10 @@
     LASTEDIT: 27.04.2023
 #>
 
-param(
-     [Parameter()]
-     [string]$Parameter
- )
-
+# Definition der Parameter
+Param(
+    [string]$ext
+)
 
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
 $scriptpath = $PSScriptRoot
@@ -41,13 +40,18 @@ $repo = "yt-dlp/yt-dlp"
 $file = "yt-dlp.exe"
 $downloadfilepath = $scriptpath + "/yt-dlp.exe"
 $versionfile = $scriptpath + "/version.motm"
-$releases = "https://api.github.com/repos/$repo/releases"
+#$releases = "https://api.github.com/repos/$repo/releases"
+$releases = "https://github.com/$repo/releases/latest"
 $aktuelleVersion = Get-Content $versionfile -erroraction 'silentlycontinue'
 
 
 # Webrequest um die Versionen aus Github-Repo auszulesen 
 Write-Host "Ermitteln der neuesten Version"
-$tag = (Invoke-WebRequest $releases | ConvertFrom-Json)[0].tag_name
+$request = [System.Net.WebRequest]::Create($releases)
+$response = $request.GetResponse()
+$realTagUrl = $response.ResponseUri.OriginalString
+$tag = $realTagUrl.split('/')[-1].Trim('v')
+#$tag = (Invoke-WebRequest $releases | ConvertFrom-Json)[0].tag_name
 
 # Pruefe ob Version identisch zur gespeicherten Version
 if($tag.Equals($aktuelleVersion)){
@@ -89,13 +93,16 @@ $url = Read-Host "Bitte YouTube-Link eingeben"
 
 # WINDOWS
 
-if($Parameter.Equals("mp4")){ # DOWNLOAD MP4 ONLY
+if($ext -eq "mp4"){ # DOWNLOAD MP4 ONLY
     .\core\yt-dlp.exe -P $downloadpath -S "ext:mp4:m4a" $url -o "%(title)s.%(ext)s" --compat-options no-certifi
 }
-if($Patameter.Equals("mp3")){ # DOWNLOAD MP3 ONLY
+if($ext -eq "mp3"){ # DOWNLOAD MP3 ONLY
     .\core\yt-dlp.exe -P $downloadpath -x --audio-format mp3 --audio-quality 0 $url -o "%(title)s.%(ext)s" --compat-options no-certifi
 }
-if($Patameter.Equals("all")){ # DOWNLOAD MP4 UND MP3
+if($ext -eq "m4a"){ # DOWNLOAD MP3 ONLY
+    .\core\yt-dlp.exe -P $downloadpath -x --audio-format m4a --audio-quality 0 $url -o "%(title)s.%(ext)s" --compat-options no-certifi
+}
+if($ext -eq "all"){ # DOWNLOAD MP4 UND MP3
     .\core\yt-dlp.exe -P $downloadpath -S "ext:mp4:m4a" $url -o "%(title)s.%(ext)s" --compat-options no-certifi
     .\core\yt-dlp.exe -P $downloadpath -x --audio-format mp3 --audio-quality 0 $url -o "%(title)s.%(ext)s" --compat-options no-certifi
 }

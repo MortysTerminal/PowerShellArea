@@ -1,0 +1,1 @@
+powershell.exe -executionpolicy bypass -file "%CD%\core\mbo-yt-download-script.ps1" mp4
