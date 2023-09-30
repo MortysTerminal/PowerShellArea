@@ -32,14 +32,36 @@ Param(
 )
 
     <# 
-    TODO: Code aufraeumen und Versionspruefung etc in Funktionen umschreiben, damit der Code lesbarer ist
+    TODO: Code aufraeumen und Versionspruefung etc in mehr Funktionen umschreiben, damit der Code lesbarer ist
     #>
 
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
-$scriptpath = $PSScriptRoot
-
+#$scriptpath = $PSScriptRoot
+# DEBUG
+$scriptpath = "F:\repos\PowerShellArea\Tools\YouTube-Downloader\core"
 # CMD-Fenster aufraeumen
 Clear-Host
+
+function LadeFFMPEG {
+    # https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+    $ffmpegLatestReleaseURL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+    $ffmpegDownloadZIPPath = $scriptpath + "/ffmpeg-release-essentials.zip"
+    $ffmpegunzippath = $scriptpath + "/ffmpeg-release-essentials/"
+
+
+    Write-Host "Lade aktuelle FFMPEG-Version herunter"
+    $webclient = New-Object System.Net.WebClient
+    $webclient.DownloadFile($ffmpegLatestReleaseURL,$ffmpegDownloadZIPPath)
+
+    Expand-Archive -LiteralPath $ffmpegDownloadZIPPath -DestinationPath $ffmpegunzippath
+    $ffmpegfilelocation = Get-ChildItem -Path $ffmpegunzippath -Filter "ffmpeg.exe" -Recurse
+    Move-Item -Path ($ffmpegfilelocation.FullName) -Destination $scriptpath -Force
+
+    Remove-Item -Path $ffmpegunzippath -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+    Remove-Item -Path $ffmpegDownloadZIPPath -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
+
+    Write-Host "ffmpeg wurde erfolgreich heruntergeladen" -ForegroundColor Green
+}
 
 ##########
 # Pruefe auf aktuelle yt-flp Version
@@ -49,6 +71,7 @@ Clear-Host
 $repo = "yt-dlp/yt-dlp"
 $file = "yt-dlp.exe"
 $downloadfilepath = $scriptpath + "/yt-dlp.exe"
+$ffmpegfilepath = $scriptpath + "/ffmpeg.exe"
 $versionfile = $scriptpath + "/version.motm"
 #$releases = "https://api.github.com/repos/$repo/releases"
 $releases = "https://github.com/$repo/releases/latest"
@@ -67,6 +90,11 @@ $tag = $realTagUrl.split('/')[-1].Trim('v')
     TODO: ffmpeg Datei ebenfalls pruefen und herunterladen, falls sie fehlen sollte
     ffmpeg wird benoetigt für die umwandlung in mp3 oder m4a
     #>
+
+if(!(Test-Path -Path $ffmpegfilepath -PathType Leaf)){
+    Write-Host "ffmpeg fehlt" -ForegroundColor Yellow
+    LadeFFMPEG
+}
 
 
 # Pruefe ob Version identisch zur gespeicherten Version
