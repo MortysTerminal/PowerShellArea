@@ -35,6 +35,11 @@ Param(
     TODO: Code aufraeumen und Versionspruefung etc in mehr Funktionen umschreiben, damit der Code lesbarer ist
     #>
 
+    <#
+    TODO: Letzten Lauf ermitteln und Versionspruefung auf Basis von 7 Tagen Abstand durchfuehren
+    Existenzpruefung muss IMMER durchgefuehrt werden
+    #>
+
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
 #$scriptpath = $PSScriptRoot
 # DEBUG
@@ -78,7 +83,7 @@ $releases = "https://github.com/$repo/releases/latest"
 $aktuelleVersion = Get-Content $versionfile -erroraction 'silentlycontinue'
 
 # Webrequest um die Versionen aus Github-Repo auszulesen 
-Write-Host "Ermitteln der neuesten yt-dlp Version"
+#Write-Host "Ermitteln der neuesten yt-dlp Version"
 $request = [System.Net.WebRequest]::Create($releases)
 $response = $request.GetResponse()
 $realTagUrl = $response.ResponseUri.OriginalString
@@ -94,6 +99,8 @@ $tag = $realTagUrl.split('/')[-1].Trim('v')
 if(!(Test-Path -Path $ffmpegfilepath -PathType Leaf)){
     Write-Host "ffmpeg fehlt" -ForegroundColor Yellow
     LadeFFMPEG
+}else{
+    Write-Host "ffmpeg ist vorhanden!" -ForegroundColor Green
 }
 
 
