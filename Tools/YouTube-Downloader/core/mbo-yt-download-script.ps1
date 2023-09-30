@@ -6,10 +6,12 @@
 
 .DESCRIPTION 
     Der Benutzer wird nach einer URL gefragt, dies muss der Link des Videos sein. Sobald dies eingegeben wurde, muss dies mit ENTER bestaetigt werden.
-    Das Skript wird dann das angegegebene Video herunterladen.
+    Das Skript wird dann das angegegebene Video herunterladen. (Funktioniert auch mit Playlists)
     
 .COMPONENT 
-    Diese Modul benoetigt die yt-dlp exe
+    Es wird vor der Abfrage des Links eine Versions- und Existenzpruefung der "yt-dlp.exe" Datei durchgefuehrt.
+    Fehlt diese Datei, wird die exe-Datei vom GitHub-Repository heruntergeladen 
+    Diese Modul benoetigt die yt-dlp.exe
     Link zum GitHub-Repo: https://github.com/yt-dlp/yt-dlp
     Dies EXE muss im selben Pfad liegen wie das Skript.
 
@@ -18,18 +20,26 @@
 
 .NOTES 
     Dies Funktioniert nur in einer Windows-Umgebung. (mind. Win 7 SP1)
-    NAME: MBo-YouTube-Videodownloader
-    AUTHOR: Martin Bosche, IT-Systemadministrator Gneuss
-    LASTEDIT: 27.04.2023
+    NAME: YouTube-Videodownloader
+    AUTHOR: MortysTerminal
+    LASTEDIT: 30.09.2023
 #>
 
-# Definition der Parameter
+# Definition des Parameters, welcher beim Start des Skript ubernommmen wird
+# Dieser ist entscheidend bei der Auswahl des Formates des Downloads
 Param(
     [string]$ext
 )
 
+    <# 
+    TODO: Code aufraeumen und Versionspruefung etc in Funktionen umschreiben, damit der Code lesbarer ist
+    #>
+
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
 $scriptpath = $PSScriptRoot
+
+# CMD-Fenster aufraeumen
+Clear-Host
 
 ##########
 # Pruefe auf aktuelle yt-flp Version
@@ -43,19 +53,25 @@ $versionfile = $scriptpath + "/version.motm"
 #$releases = "https://api.github.com/repos/$repo/releases"
 $releases = "https://github.com/$repo/releases/latest"
 $aktuelleVersion = Get-Content $versionfile -erroraction 'silentlycontinue'
-$ytdlpCheck = Test-Path -Path $downloadfilepath -PathType Leaf
 
 # Webrequest um die Versionen aus Github-Repo auszulesen 
-Write-Host "Ermitteln der neuesten Version"
+Write-Host "Ermitteln der neuesten yt-dlp Version"
 $request = [System.Net.WebRequest]::Create($releases)
 $response = $request.GetResponse()
 $realTagUrl = $response.ResponseUri.OriginalString
 $tag = $realTagUrl.split('/')[-1].Trim('v')
 #$tag = (Invoke-WebRequest $releases | ConvertFrom-Json)[0].tag_name
 
+
+    <# 
+    TODO: ffmpeg Datei ebenfalls pruefen und herunterladen, falls sie fehlen sollte
+    ffmpeg wird benoetigt für die umwandlung in mp3 oder m4a
+    #>
+
+
 # Pruefe ob Version identisch zur gespeicherten Version
 if($tag.Equals($aktuelleVersion) -and (Test-Path -Path $downloadfilepath -PathType Leaf)){
-    Write-Host "Aktuellste Version yt-dlp.exe bereits vorhanden!" -ForegroundColor Green
+    Write-Host "yt-dlp ist aktuell!" -ForegroundColor Green
 }
 else
 {
@@ -64,12 +80,15 @@ else
 
     Write-Host "Starte Download"
     #Get-FileFromWeb($download,$downloadfilepath)
+    # Erstellt Web-Client und startet den Download der yt-dlp.exe
     $webclient = New-Object System.Net.WebClient
     $webclient.DownloadFile($download,$downloadfilepath)
 
     # Speichere neue Versionsnummer in motm-datei
-    Write-Host "Speichere neue Versionsnummer"
+    # Write-Host "Speichere neue Versionsnummer"
     $tag | Out-File $versionfile
+
+    Write-Host "yt-dlp wurde erfolgreich aktualisiert - es kann losgehen!" -ForegroundColor Green
 }
 
 ##########
@@ -86,9 +105,13 @@ $corepath = $scriptpath +"\core"
 # yt-dlp Pfad
 $ytdlppfad = $corepath +"\yt-dlp.exe"
 
+Write-Host "--- Skriptversion: 2023-09.30 -- 0.7 -------------"
+
 Write-Host ""
-Clear-Host
-Write-Host "--- Skriptversion: 2023-09.-29 -- 0.6 -------------"
+Write-Host ""
+Write-Host ""
+
+
 $url = Read-Host "Bitte YouTube-Link eingeben"
 
 # WINDOWS
