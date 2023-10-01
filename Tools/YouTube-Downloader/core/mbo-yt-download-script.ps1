@@ -41,9 +41,9 @@ Param(
     #>
 
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
-#$scriptpath = $PSScriptRoot
+$scriptpath = $PSScriptRoot
 # DEBUG
-$scriptpath = "F:\repos\PowerShellArea\Tools\YouTube-Downloader\core"
+#$scriptpath = "F:\repos\PowerShellArea\Tools\YouTube-Downloader\core"
 # CMD-Fenster aufraeumen
 Clear-Host
 
