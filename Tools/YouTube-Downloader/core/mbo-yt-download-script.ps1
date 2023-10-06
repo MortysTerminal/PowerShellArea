@@ -161,7 +161,7 @@ CheckVersionZeitpunkt
 
 
 
-Write-Host "--- Skriptversion: 2023-09.30 -- 0.7 -------------"
+Write-Host "--- Skriptversion: 2023-10-06 -- v.1.0 -------------"
 
 while (1)
 {
