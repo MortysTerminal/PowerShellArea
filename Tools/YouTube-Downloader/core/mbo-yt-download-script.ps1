@@ -31,17 +31,6 @@ Param(
     [string]$ext
 )
 
-    <# 
-    TODO: Code aufraeumen und Versionspruefung etc in mehr Funktionen umschreiben, damit der Code lesbarer ist
-    #>
-
-    <#
-    TODO: Letzten Lauf ermitteln und Versionspruefung auf Basis von 7 Tagen Abstand durchfuehren
-    Existenzpruefung muss IMMER durchgefuehrt werden
-    #>
-
-
-
 ##################################################
 #
 #   Alle benoetigten Variablen
@@ -79,18 +68,6 @@ $ytdlppfad = $corepath +"\yt-dlp.exe"
 
 Clear-Host
 
-
-function CheckVersionZeitpunkt 
-{
-    #DEBUG
-    #$zuletztGeladen = (Get-ChildItem $versionfile).LastWriteTime.AddDays($TageBisUpdateCheck * -1)
-    #$zuletztGeladen = Get-Content $versionfile -erroraction 'silentlycontinue'
-
-    $zuletztGeladen = (Get-ChildItem $versionfile).LastWriteTime
-    $Datumabstand = ((Get-Date) - $zuletztGeladen).Days
-    if($TagebisUpdateCheck -cle $Datumabstand) { VersionCheckAusfuehren }
-}
-
 function VersionCheckAusfuehren
 {
     ##########
@@ -127,6 +104,13 @@ function VersionCheckAusfuehren
 
         Write-Host "yt-dlp wurde erfolgreich aktualisiert - es kann losgehen!" -ForegroundColor Green
     }
+}
+
+function CheckVersionZeitpunkt 
+{
+    $zuletztGeladen = (Get-ChildItem $versionfile).LastWriteTime
+    $Datumabstand = ((Get-Date) - $zuletztGeladen).Days
+    if($TagebisUpdateCheck -cle $Datumabstand) { VersionCheckAusfuehren }
 }
 
 function LadeFFMPEG {
