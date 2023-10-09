@@ -1,4 +1,4 @@
-# Mortys Downloader - YouTube, Twitter, Instagram, and TikTok Video Downloader
+# Mortys Downloader - YouTube, Twitter, Instagram, Twitch and TikTok Video Downloader
 
 This repository contains a PowerShell script that utilizes the [yt-dlp](https://github.com/yt-dlp/yt-dlp) GitHub project to download videos from YouTube, Twitter, Instagram, and TikTok. The script simplifies the process of downloading videos in formats such as mp3, mp4, or m4a by automatically fetching the necessary files without requiring user approval.
 
