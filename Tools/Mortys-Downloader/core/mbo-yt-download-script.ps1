@@ -37,7 +37,8 @@ Param(
 ##################################################
     
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
-$scriptpath = $PSScriptRoot
+#$scriptpath = $PSScriptRoot
+$scriptpath = "C:\Users\marti\source\repos\PowerShellArea\Tools\Mortys-Downloader\core"
 
 # Benoetigte Variablen zur Pruefung auf Version initialisieren
 $repo = "yt-dlp/yt-dlp"
@@ -49,6 +50,9 @@ $TageBisUpdateCheck = 7
 $releases = "https://github.com/$repo/releases/latest"
 $aktuelleVersion = Get-Content $versionfile -erroraction 'silentlycontinue'
 
+# Pruefe ob Text aus version.motm ein Datum ist - wenn nicht dann leer machen
+try{ [datetime]$aktuelleVersion } catch{ $aktuelleVersion = "" } 
+
 # Auslesen des User-Download-Pfads
 $downloadpath = (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path
 
@@ -56,12 +60,11 @@ $downloadpath = (New-Object -ComObject Shell.Application).NameSpace('shell:Downl
 $corepath = $scriptpath +"\core"
 
 # yt-dlp Pfad
-$ytdlppfad = $corepath +"\yt-dlp.exe"
+$ytdlppfad = $scriptpath +"\yt-dlp.exe"
 
 Clear-Host
 
-function VersionCheckAusfuehren
-{
+function VersionCheckAusfuehren{
     ##########
     # Pruefe auf aktuelle yt-flp Version
     ##########
@@ -97,11 +100,10 @@ function VersionCheckAusfuehren
         Write-Host "yt-dlp wurde erfolgreich aktualisiert - es kann losgehen!" -ForegroundColor Green
     }
 }
-function CheckVersionZeitpunkt 
-{
+function CheckVersionZeitpunkt{
     $zuletztGeladen = (Get-ChildItem $versionfile).LastWriteTime
     $Datumabstand = ((Get-Date) - $zuletztGeladen).Days
-    if($TagebisUpdateCheck -cle $Datumabstand) { VersionCheckAusfuehren }
+    if(($TagebisUpdateCheck -cle $Datumabstand) -or (Test-DateiLeer -Datei $versionfile) -or $aktuelleVersion.Equals("")){ VersionCheckAusfuehren }
 }
 function LadeFFMPEG {
     # https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
@@ -122,10 +124,33 @@ function LadeFFMPEG {
 
     Write-Host "ffmpeg wurde erfolgreich heruntergeladen" -ForegroundColor Green # Output
 }
+function LadeYTDLP{
+    ##########
+    # Pruefe auf aktuelle yt-flp Version
+    ##########
+
+    # Webrequest um die Versionen aus Github-Repo auszulesen 
+    $request = [System.Net.WebRequest]::Create($releases)
+    $response = $request.GetResponse()
+    $realTagUrl = $response.ResponseUri.OriginalString
+    $tag = $realTagUrl.split('/')[-1].Trim('v')
+    $download = "https://github.com/$repo/releases/download/$tag/$file"
+
+    Write-Host "Starte Download (yt-dlp)"
+    $webclient = New-Object System.Net.WebClient
+    $webclient.DownloadFile($download,$downloadfilepath)
+
+    # Speichere neue Versionsnummer in motm-datei
+    $tag | Out-File $versionfile
+}
+function Test-DateiLeer {
+  Param ([Parameter(Mandatory = $true)][string]$datei)
+  if ((Test-Path -LiteralPath $datei) -and !(([IO.File]::ReadAllText($datei)) -match '\S')) {return $true} else {return $false}
+}
 
 ##################################################
 #
-#   Check ob FFMPEG vorhanden und yt-dlp Versionscheck
+#   Check ob noetige Dateien vorhanden
 #
 ##################################################
 
@@ -133,12 +158,29 @@ function LadeFFMPEG {
 if(!(Test-Path -Path $ffmpegfilepath -PathType Leaf)){
     Write-Host "ffmpeg fehlt - lade ffmpeg herunter" -ForegroundColor Yellow
     LadeFFMPEG
-}else{
-    #Write-Host "ffmpeg ist vorhanden!" -ForegroundColor Green
 }
 
-# UpdateCheck
-CheckVersionZeitpunkt
+# Pruefe ob version.motm vorhanden ist, wenn nicht dann erstellen
+if(!(Test-Path -Path $versionfile -PathType Leaf)){
+    Write-Host "Versionsdatei fehlt - wird erstellt" -ForegroundColor Yellow
+    Write-Host "" | Out-File $versionfile  
+    # UpdateCheck
+    CheckVersionZeitpunkt
+}else{
+    # UpdateCheck
+    CheckVersionZeitpunkt
+}
+
+# Pruefe ob yt-dlp vorhanden ist, wenn nicht dann herunterladen
+if(!(Test-Path -Path $ytdlppfad -PathType Leaf)){
+    Write-Host "yt-dlp fehlt - lade yt-dlp herunter" -ForegroundColor Yellow
+    LadeYTDLP
+    Write-Host "yt-dlp wurde heruntergeladen - es kann losgehen!" -ForegroundColor Green
+}
+
+
+
+
 
 ##################################################
 #
