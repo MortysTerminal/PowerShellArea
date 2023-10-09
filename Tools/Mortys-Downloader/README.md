@@ -25,4 +25,5 @@ This project is licensed under the **MIT License**.
 ## Credits
 
 This project utilizes the [yt-dlp](https://github.com/yt-dlp/yt-dlp) project for video downloading.
+
 *Please do not load this script onto your USB stick and eat it afterwards.*
