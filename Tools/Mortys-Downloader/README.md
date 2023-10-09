@@ -5,21 +5,22 @@ This repository contains a PowerShell script that utilizes the [yt-dlp](https://
 ## Usage
 
 1. Open the respective `.bat` file for the desired video format:
-   - `download_mp3.bat` for MP3 downloads
-   - `download_mp4.bat` for MP4 downloads
-   - `download_m4a.bat` for M4A downloads
+    - `start_mp3-and-mp4.bat` for MP3 AND MP4 download
+    - `start_only_m4a.bat` for M4A download
+    - `start_only_mp3.bat` for MP3 download
+    - `start_only_mp4.bat` for MP4 download
 
 2. The script will start automatically and initiate the video download.
 
-Note: The script will check for the presence of `yt-dlp.exe` and `ffmpeg.exe`. If these executables are missing, they will be automatically downloaded.
+Note: The script will check for the presence of `yt-dlp.exe` and `ffmpeg.exe`. If these executables are missing, they will be **automatically downloaded.**
 
 ## Notes
 
-- For further customization and advanced functionality of the script, refer to the PowerShell file `download_videos.ps1`.
+- For further customization and advanced functionality of the script, refer to the PowerShell file `core/mbo-yt-download-script.ps1`.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the **MIT License**.
 
 ## Credits
 
