@@ -37,8 +37,7 @@ Param(
 ##################################################
     
 # PowerShell-Automatic variable um den Skriptpfad auszulesen
-#$scriptpath = $PSScriptRoot
-$scriptpath = "C:\Users\marti\source\repos\PowerShellArea\Tools\Mortys-Downloader\core"
+$scriptpath = $PSScriptRoot
 
 # Benoetigte Variablen zur Pruefung auf Version initialisieren
 $repo = "yt-dlp/yt-dlp"
