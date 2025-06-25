@@ -23,13 +23,8 @@ Ideal für Streamer wie **mortys_welt**, die ihre besten Momente als YouTube Sho
 ```
 .
 ├── config/
-│   ├── downloaded_clips.json   # WIRD ERSTELLT - Alle heruntergeladenen Clips
-│   └── processed_clips.json    # WIRD ERSTELLT Alle erfolgreich verarbeiteten Clips
-├── RAW/                        # Temporäre MP4-Dateien direkt nach dem Download
-├── <CLIPNAME>/
-│   ├── <CLIPNAME>.mp4
-│   ├── <CLIPNAME>.srt
-│   └── <CLIPNAME>.zip
+│   ├  ─  ─ downloaded_clips.json   # WIRD ERSTELLT - Alle heruntergeladenen Clips
+│   └  ─  ─ processed_clips.json    # WIRD ERSTELLT - Alle erfolgreich verarbeiteten Clips
 ├── clip_automator.ps1          # Hauptskript
 └── README.md
 ```
