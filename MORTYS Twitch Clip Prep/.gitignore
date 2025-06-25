@@ -1,0 +1,13 @@
+# Log-Dateien
+config/*.json
+
+# Python/Whisper Caches
+__pycache__/
+*.pt
+
+# Downloads
+RAW/
+
+# System-Dateien
+.DS_Store
+Thumbs.db
