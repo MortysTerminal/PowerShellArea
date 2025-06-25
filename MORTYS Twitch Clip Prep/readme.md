@@ -33,3 +33,14 @@ Ideal für Streamer wie **mortys_welt**, die ihre besten Momente als YouTube Sho
 ├── clip_automator.ps1          # Hauptskript
 └── README.md
 ```
+
+Im Skript abgeänderte BaseDir - ergibt den Downloadpfad an und es entsteht dort folgende Struktur:
+
+```
+.
+├── RAW/                        # Temporäre MP4-Dateien direkt nach dem Download
+├── <CLIPNAME>/                 # Fertiges Verzeichnis pro Clip
+│   ├── <CLIPNAME>.mp4          # .mp4 Video-Datei (x264)
+│   ├── <CLIPNAME>.srt          # .srt Untertitel-Datei z.B. für Davinci Resolve
+│   └── <CLIPNAME>.zip          # .zip -> beinhaltet .mp4 und .srt; lediglich für vereinfachten Download
+```
