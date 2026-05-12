@@ -1,1 +1,0 @@
-powershell.exe -executionpolicy bypass -file ".\download_twitch_clips.ps1"
