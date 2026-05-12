@@ -51,7 +51,39 @@ Primary reference:
 
 ---
 
-## Usage
+## Quick check (run without cloning)
+
+For a one-shot diagnostic on a client PC, you can fetch and execute the
+script directly from this repository without cloning:
+
+```powershell
+# Default check, no parameters
+irm 'https://raw.githubusercontent.com/MortysTerminal/PowerShellArea/main/SecureBoot-CertCheck-2026/Get-SecureBootCertStatus.ps1' | iex
+```
+
+If you need to pass parameters (`-ExportCsv`, `-LogPath`, `-Quiet`), wrap
+the downloaded content in a script block so PowerShell forwards them
+properly:
+
+```powershell
+$src = irm 'https://raw.githubusercontent.com/MortysTerminal/PowerShellArea/main/SecureBoot-CertCheck-2026/Get-SecureBootCertStatus.ps1'
+$sb  = [scriptblock]::Create($src)
+& $sb -ExportCsv .\status.csv -LogPath .\check.log
+```
+
+On Windows PowerShell 5.1 on older systems you may need to force TLS 1.2
+before the request:
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+```
+
+> **A note on trust.** Running a script straight off the internet means
+> trusting whatever happens to be at that URL the moment you invoke it. The script in this repo is read-only and does not modify the system, but inspecting the source before piping it into `iex` is always a reasonable habit.
+
+---
+
+## Usage - if you download the script
 
 Run a basic interactive check:
 
@@ -132,39 +164,7 @@ in the Microsoft playbook. Mixing deployment methods on the same device is
 explicitly discouraged by Microsoft, which is one more reason this script
 stays purely on the diagnostic side.
 
----
 
-## Quick check (run without cloning)
-
-For a one-shot diagnostic on a client PC, you can fetch and execute the
-script directly from this repository without cloning:
-
-```powershell
-# Default check, no parameters
-irm 'https://raw.githubusercontent.com/MortysTerminal/PowerShellArea/main/SecureBoot-CertCheck-2026/Get-SecureBootCertStatus.ps1' | iex
-```
-
-If you need to pass parameters (`-ExportCsv`, `-LogPath`, `-Quiet`), wrap
-the downloaded content in a script block so PowerShell forwards them
-properly:
-
-```powershell
-$src = irm 'https://raw.githubusercontent.com/MortysTerminal/PowerShellArea/main/SecureBoot-CertCheck-2026/Get-SecureBootCertStatus.ps1'
-$sb  = [scriptblock]::Create($src)
-& $sb -ExportCsv .\status.csv -LogPath .\check.log
-```
-
-On Windows PowerShell 5.1 on older systems you may need to force TLS 1.2
-before the request:
-
-```powershell
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-```
-
-> **A note on trust.** Running a script straight off the internet means
-> trusting whatever happens to be at that URL the moment you invoke it. The script in this repo is read-only and does not modify the system, but inspecting the source before piping it into `iex` is always a reasonable habit.
-
----
 
 ## License
 
